@@ -44,6 +44,7 @@ import traceback
 import subprocess
 import urllib.request
 import importlib.util
+import argparse
 
 # Check code dependency installation
 for depend in ['colorama','crccheck','pltable'] :
@@ -72,73 +73,6 @@ uint8_t = ctypes.c_ubyte
 uint16_t = ctypes.c_ushort
 uint32_t = ctypes.c_uint
 uint64_t = ctypes.c_uint64
-
-# Print MEA Help screen
-def mea_help() :
-	print(
-		  '\nUsage: MEA [FilePath] {Options}\n\n{Options}\n\n'
-		  '-?     : Displays help & usage screen\n'
-		  '-skip  : Skips welcome & options screen\n'
-		  '-exit  : Skips Press enter to exit prompt\n'
-		  '-mass  : Scans all files of a given directory\n'
-		  '-pdb   : Writes unique input file DB name to file\n'
-		  '-dbn   : Renames input file based on unique DB name\n'
-		  '-dfpt  : Shows FPT, BPDT, OROM & CSE/GSC Layout Table info\n'
-		  '-unp86 : Unpacks all supported CSE, GSC and/or IUP firmware\n'
-		  '-bug86 : Enables pause on error during CSE/GSC/IUP unpacking\n'
-		  '-ver86 : Enables verbose output during CSE/GSC/IUP unpacking\n'
-		  '-html  : Writes parsable HTML info files during MEA operation\n'
-		  '-json  : Writes parsable JSON info files during MEA operation'
-		  )
-	
-	print(col_g + '\nCopyright (C) 2014-2021 Plato Mavropoulos' + col_e)
-	
-	if getattr(sys, 'frozen', False) : print(col_c + '\nIcon by Those Icons (thoseicons.com, CC BY 3.0)' + col_e)
-	
-	mea_exit(0)
-
-# Process MEA Parameters
-class MEA_Param :
-
-	def __init__(self, source) :
-	
-		self.val = ['-?','-skip','-unp86','-ver86','-bug86','-html','-json','-pdb','-dbn','-mass','-dfpt','-exit','-ftbl','-rcfg','-chk','-byp']
-		
-		self.help_scr = False
-		self.skip_intro = False
-		self.cse_unpack = False
-		self.cse_verbose = False
-		self.cse_pause = False
-		self.fpt_disp = False
-		self.db_print_new = False
-		self.give_db_name = False
-		self.mass_scan = False
-		self.skip_pause = False
-		self.write_html = False
-		self.write_json = False
-		self.mfs_ftbl = False
-		self.mfs_rcfg = False
-		self.check = False
-		self.bypass = False
-		
-		if '-?' in source : self.help_scr = True
-		if '-skip' in source : self.skip_intro = True
-		if '-unp86' in source : self.cse_unpack = True
-		if '-ver86' in source : self.cse_verbose = True
-		if '-bug86' in source : self.cse_pause = True
-		if '-pdb' in source : self.db_print_new = True
-		if '-dbn' in source : self.give_db_name = True
-		if '-mass' in source : self.mass_scan = True
-		if '-dfpt' in source : self.fpt_disp = True
-		if '-exit' in source : self.skip_pause = True
-		if '-html' in source : self.write_html = True
-		if '-json' in source : self.write_json = True
-		if '-ftbl' in source : self.mfs_ftbl = True # Hidden
-		if '-rcfg' in source : self.mfs_rcfg = True # Hidden
-		if '-chk' in source : self.check = True # Hidden
-		if '-byp' in source : self.bypass = True # Hidden
-			
-		if self.mass_scan or self.db_print_new : self.skip_intro = True
 
 # https://stackoverflow.com/a/65447493 by Shail-Shouryya
 class Thread_With_Result(threading.Thread) :
@@ -10829,17 +10763,11 @@ known_dup_name_hahes = [
 'F47A69561A851482E66D78836519DE25A3FED14B5B5A92F5C00AC3B6D7E9F631', # PHY ICP_N_9.0.1.0006_PRE (Date, Data)
 ]
 
-# Get MEA Parameters from input
-param = MEA_Param(sys.argv)
-
 # curdir
 cur_dir = os.path.realpath(os.path.curdir)
 
 # Get script location
 mea_dir = get_script_dir()
-
-# Enumerate parameter input
-arg_num = len(sys.argv)
 
 # Set dependencies paths
 mea_db_path = os.path.join(mea_dir, 'MEA.dat')
@@ -10869,15 +10797,44 @@ mea_title = '%s %s' % (title, mea_db_rev)
 if sys_os == 'win32' : ctypes.windll.kernel32.SetConsoleTitleW(mea_title)
 elif sys_os.startswith('linux') or sys_os == 'darwin' : sys.stdout.write('\x1b]2;' + mea_title + '\x07')
 
+# Process MEA Parameters
+arg_num = len(sys.argv)
+argp = argparse.ArgumentParser(sys.argv[0], add_help=False)
+
+argp.usage = 'MEA [FilePath] {Options}\n\n'
+argp._optionals.title = '{Options}'
+
+argp.add_argument('files',  nargs='*', metavar='[FilePath]',          help=argparse.SUPPRESS)
+argp.add_argument('-?',     action='store_true', dest='help_scr',     help='Displays help & usage screen')
+argp.add_argument('-skip',  action='store_true', dest='skip_intro',   help='Skips welcome & options screen')
+argp.add_argument('-exit',  action='store_true', dest='skip_pause',   help='Skips Press enter to exit prompt')
+argp.add_argument('-mass',  action='store_true', dest='mass_scan',    help='Scans all files of a given directory')
+argp.add_argument('-pdb',   action='store_true', dest='db_print_new', help='Writes unique input file DB name to file')
+argp.add_argument('-dbn',   action='store_true', dest='give_db_name', help='Renames input file based on unique DB name')
+argp.add_argument('-dfpt',  action='store_true', dest='fpt_disp',     help='Shows FPT, BPDT, OROM & CSE/GSC Layout Table info')
+argp.add_argument('-unp86', action='store_true', dest='cse_unpack',   help='Unpacks all supported CSE, GSC and/or IUP firmware')
+argp.add_argument('-bug86', action='store_true', dest='cse_pause',    help='Enables pause on error during CSE/GSC/IUP unpacking')
+argp.add_argument('-ver86', action='store_true', dest='cse_verbose',  help='Enables verbose output during CSE/GSC/IUP unpacking')
+argp.add_argument('-html',  action='store_true', dest='write_html',   help='Writes parsable HTML info files during MEA operation')
+argp.add_argument('-json',  action='store_true', dest='write_json',   help='Writes parsable JSON info files during MEA operation')
+argp.add_argument('-ftbl',  action='store_true', dest='mfs_ftbl',     help=argparse.SUPPRESS)  # Hidden
+argp.add_argument('-rcfg',  action='store_true', dest='mfs_rcfg',     help=argparse.SUPPRESS)  # Hidden
+argp.add_argument('-chk',   action='store_true', dest='check',        help=argparse.SUPPRESS)  # Hidden
+argp.add_argument('-byp',   action='store_true', dest='bypass',       help=argparse.SUPPRESS)  # Hidden
+
+param = argp.parse_args()
+
+if param.mass_scan or param.db_print_new : param.skip_intro = True
+
 if not param.skip_intro :
 	mea_hdr(mea_db_rev_p)
 
 	print("\nWelcome to Intel Engine & Graphics Firmware Analysis Tool\n")
-	
-	if arg_num == 2 :
+    
+	if arg_num == 2 and len(param.files) == 1:
 		print("Press Enter to skip or input -? to list options\n")
-		print("\nFile:       " + col_g + "%s" % os.path.basename(sys.argv[1]) + col_e)
-	elif arg_num > 2 :
+		print("\nFile:       " + col_g + "%s" % os.path.basename(param.files[0]) + col_e)
+	elif arg_num > 2 and len(param.files) > 1:
 		print("Press Enter to skip or input -? to list options\n")
 		print("\nFiles:       " + col_y + "Multiple" + col_e)
 	else :
@@ -10890,14 +10847,8 @@ if not param.skip_intro :
 	input_var = re.split(''' (?=(?:[^'"]|'[^']*'|"[^"]*")*$)''', input_var.strip())
 	
 	# Get MEA Parameters based on given Options
-	param = MEA_Param(input_var)
-	
-	# Non valid parameters are treated as files
-	if input_var[0] != "" :
-		for i in input_var:
-			if i not in param.val :
-				sys.argv.append(i.strip('"'))
-	
+	param = argp.parse_args(input_var)
+    
 	# Re-enumerate parameter input
 	arg_num = len(sys.argv)
 
@@ -10907,23 +10858,24 @@ else :
 	mea_hdr(mea_db_rev_p)
 	
 if (arg_num < 2 and not param.help_scr and not param.mass_scan) or param.help_scr :
-	mea_help()
+	argp.print_help()
+
+	print(col_g + "\nCopyright (C) 2014-2021 Plato Mavropoulos" + col_e)
+	if getattr(sys, 'frozen', False):
+		print(col_c + '\nIcon by Those Icons (thoseicons.com, CC BY 3.0)' + col_e)
+
+	mea_exit(0)
 
 # Initialize file input
-files_in = []
 if param.mass_scan :
 	in_path = input('\nEnter the full folder path : ')
 	files_in = mass_scan(in_path)
 
 else:
-	for arg in sys.argv[1:] : # Skip script/executable
-		if arg in param.val : continue # Next input file
-
-		if os.path.isfile(arg) :
-			files_in.append(arg)
-
-		else:
-			print(col_r + '\nError: File %s was not found!' % arg + col_e)
+	files_in = param.files
+	for file in files_in :
+		if not os.path.isfile(file) :
+			print(col_r + '\nError: File %s was not found!' % file + col_e)
 			mea_exit(1)
 
 in_count = len(files_in)
