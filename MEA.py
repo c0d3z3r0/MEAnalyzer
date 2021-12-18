@@ -21,10 +21,9 @@ if sys_py < (3,7) :
 # Detect OS platform
 sys_os = sys.platform
 if sys_os == 'win32' :
-	cl_wipe = 'cls'
 	sys.stdout.reconfigure(encoding='utf-8') # Fix Windows Unicode console redirection
 elif sys_os.startswith('linux') or sys_os == 'darwin' or sys_os.find('bsd') != -1 :
-	cl_wipe = 'clear'
+    pass
 else :
 	print('%s\n\nError: Unsupported platform "%s"!\n' % (title, sys_os))
 	if '-exit' not in sys.argv : input('Press enter to exit')
@@ -10897,9 +10896,7 @@ if not param.skip_intro :
 	
 	# Re-enumerate parameter input
 	arg_num = len(sys.argv)
-	
-	os.system(cl_wipe)
-	
+
 	mea_hdr(mea_db_rev_p)
 	
 else :
