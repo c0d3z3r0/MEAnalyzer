@@ -10916,7 +10916,6 @@ else :
 	source = sys.argv[1:] # Skip script/executable
 	
 # Initialize file input
-file_in = ''
 cur_count = 0
 in_count = len(source)
 for arg in source :
