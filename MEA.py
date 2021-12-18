@@ -10909,17 +10909,24 @@ else :
 if (arg_num < 2 and not param.help_scr and not param.mass_scan) or param.help_scr :
 	mea_help()
 
+# Initialize file input
+files_in = []
 if param.mass_scan :
 	in_path = input('\nEnter the full folder path : ')
-	source = mass_scan(in_path)
-else :
-	source = sys.argv[1:] # Skip script/executable
-	
-# Initialize file input
-cur_count = 0
-in_count = len(source)
-for arg in source :
-	if arg in param.val : in_count -= 1
+	files_in = mass_scan(in_path)
+
+else:
+	for arg in sys.argv[1:] : # Skip script/executable
+		if arg in param.val : continue # Next input file
+
+		if os.path.isfile(arg) :
+			files_in.append(arg)
+
+		else:
+			print(col_r + '\nError: File %s was not found!' % arg + col_e)
+			mea_exit(1)
+
+in_count = len(files_in)
 
 # Intel Engine/Graphics/Independent firmware Manifest pattern ($MN2 or $MAN, VEN_ID 0x8086)
 man_pat = re.compile(br'\x86\x80.{9}\x00\x24\x4D((\x4E\x32)|(\x41\x4E))', re.DOTALL)
@@ -10955,8 +10962,7 @@ pr_man_16_pat = re.compile(br'\x24\x43\x50\x44.\x00{3}[\x01\x02]\x01[\x10\x14].\
 pr_man_17_pat = re.compile(br'\x24\x43\x50\x44.\x00{3}[\x01\x02]\x01[\x10\x14].\x4E\x50\x48\x59', re.DOTALL)
 pr_man_18_pat = re.compile(br'\x24\x43\x50\x44.\x00{3}[\x01\x02]\x01[\x10\x14].\x57\x43\x4F\x44', re.DOTALL)
 
-for file_in in source :
-	
+for cur_count, file_in in enumerate(files_in, start=1):
 	# Variable Initialization
 	nvm_db = ''
 	fw_type = ''
@@ -11176,16 +11182,7 @@ for file_in in source :
 	eng_fw_end = 0xFFFFFFFF
 	p_offset_min = 0xFFFFFFFF
 	cse_lt_entry_min = 0xFFFFFFFF
-	cur_count += 1
-	
-	if not os.path.isfile(file_in) :
-		if any(p in file_in for p in param.val) : continue # Next input file
-		
-		print(col_r + '\nError: File %s was not found!' % file_in + col_e)
-		
-		if not param.mass_scan : mea_exit(1)
-		else : continue
-	
+    
 	# Store input file buffer to RAM, will change if Flash Descriptor is detected
 	with open(file_in, 'rb') as in_file : reading = in_file.read()
 	file_end = len(reading) # Store the input file buffer Size/EOF
