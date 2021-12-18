@@ -5235,8 +5235,8 @@ def cse_unpack(variant, fpt_part_all, bpdt_part_all, file_end, fpt_start, fpt_ch
 	
 	# Create main Firmware Extraction Directory
 	fw_name = 'Unpacked_' + os.path.basename(file_in)
-	if os.path.isdir(os.path.join(mea_dir, fw_name, '')) : shutil.rmtree(os.path.join(mea_dir, fw_name, ''))
-	os.mkdir(os.path.join(mea_dir, fw_name, ''))
+	if os.path.isdir(os.path.join(cur_dir, fw_name, '')) : shutil.rmtree(os.path.join(cur_dir, fw_name, ''))
+	os.mkdir(os.path.join(cur_dir, fw_name, ''))
 	
 	# Print Input File Name
 	file_pt = ext_table([], False, 1)
@@ -5255,7 +5255,7 @@ def cse_unpack(variant, fpt_part_all, bpdt_part_all, file_end, fpt_start, fpt_ch
 		fdv_rsa_crash = fdv_status[2] # RSA Signature crashed
 		fdv_hash_valid = fdv_status[3] # Hash validity
 		fdv_print = fdv_status[4] # FDV Manifest/Extension Info
-		fdv_path = os.path.join(mea_dir, fw_name, 'CSE Flash Descriptor') # FDV Info File
+		fdv_path = os.path.join(cur_dir, fw_name, 'CSE Flash Descriptor') # FDV Info File
 		
 		# Print Flash Descriptor Manifest/Extension Info
 		for index in range(0, len(fdv_print), 2) : # Only Name (index), skip Info (index + 1)
@@ -5300,7 +5300,7 @@ def cse_unpack(variant, fpt_part_all, bpdt_part_all, file_end, fpt_start, fpt_ch
 	# Show & Store CSE Layout Table info
 	if cse_lt_struct :
 		cse_lt_info = cse_lt_struct.hdr_print()
-		cse_lt_fname = os.path.join(mea_dir, fw_name, 'CSE LT [0x%0.6X]' % cse_lt_off)
+		cse_lt_fname = os.path.join(cur_dir, fw_name, 'CSE LT [0x%0.6X]' % cse_lt_off)
 		
 		print('%s' % cse_lt_info)
 		
@@ -5347,7 +5347,7 @@ def cse_unpack(variant, fpt_part_all, bpdt_part_all, file_end, fpt_start, fpt_ch
 			
 			if not part_empty : # Skip Empty Partitions
 				file_name = os.path.join(fw_name, 'CSE LT ' + part_name + ' [0x%0.6X].bin' % part_start) # Start offset covers any cases with duplicate name entries (CSE_Layout_Table_17)
-				mod_fname = os.path.join(mea_dir, file_name)
+				mod_fname = os.path.join(cur_dir, file_name)
 				
 				with open(mod_fname, 'w+b') as part_file : part_file.write(reading[part_start:part_end])
 			
@@ -5395,8 +5395,8 @@ def cse_unpack(variant, fpt_part_all, bpdt_part_all, file_end, fpt_start, fpt_ch
 		
 		print(pt) # Show Partition details
 		
-		if cse_lt_struct : fpt_fname = os.path.join(mea_dir, fw_name, 'CSE LT Data [0x%0.6X]' % fpt_start)
-		else : fpt_fname = os.path.join(mea_dir, fw_name, 'FPT [0x%0.6X]' % fpt_start)
+		if cse_lt_struct : fpt_fname = os.path.join(cur_dir, fw_name, 'CSE LT Data [0x%0.6X]' % fpt_start)
+		else : fpt_fname = os.path.join(cur_dir, fw_name, 'FPT [0x%0.6X]' % fpt_start)
 		
 		# Store Flash Partition Table ($FPT) Data
 		if not cse_lt_struct : # Stored at CSE LT section too
@@ -5441,7 +5441,7 @@ def cse_unpack(variant, fpt_part_all, bpdt_part_all, file_end, fpt_start, fpt_ch
 			if not part_empty : # Skip Empty Partitions
 				part_name_p = '%s %0.4X' % (part_name, part_inid) # Partition Name with Instance ID
 				
-				mod_f_path = os.path.join(mea_dir, fw_name, part_name_p + ' [0x%0.6X].bin' % part_start) # Start offset covers any cases with duplicate name entries (Joule_C0-X64-Release)
+				mod_f_path = os.path.join(cur_dir, fw_name, part_name_p + ' [0x%0.6X].bin' % part_start) # Start offset covers any cases with duplicate name entries (Joule_C0-X64-Release)
 				
 				with open(mod_f_path, 'w+b') as part_file : part_file.write(reading[part_start:part_end])
 			
@@ -5530,8 +5530,8 @@ def cse_unpack(variant, fpt_part_all, bpdt_part_all, file_end, fpt_start, fpt_ch
 		
 		print('%s' % pt) # Show Entry details
 		
-		if cse_lt_struct : bpdt_fname = os.path.join(mea_dir, fw_name, 'CSE LT Boot x [%d]' % len(bpdt_hdr_all))
-		else : bpdt_fname = os.path.join(mea_dir, fw_name, 'BPDT [%d]' % len(bpdt_hdr_all))
+		if cse_lt_struct : bpdt_fname = os.path.join(cur_dir, fw_name, 'CSE LT Boot x [%d]' % len(bpdt_hdr_all))
+		else : bpdt_fname = os.path.join(cur_dir, fw_name, 'BPDT [%d]' % len(bpdt_hdr_all))
 		
 		# Store Boot Partition Description Table (BPDT/IFWI) Info in TXT
 		with open(bpdt_fname + '.txt', 'a', encoding = 'utf-8') as bpdt_file :
@@ -5575,7 +5575,7 @@ def cse_unpack(variant, fpt_part_all, bpdt_part_all, file_end, fpt_start, fpt_ch
 			if not part_empty : # Skip Empty Partitions
 				part_name_p = '%s %0.4X' % (part_name, part_inid) # Partition Name with Instance ID
 				
-				mod_f_path = os.path.join(mea_dir, fw_name, part_name_p + ' [0x%0.6X].bin' % part_start) # Start offset covers any cases with duplicate name entries ("Unknown" etc)
+				mod_f_path = os.path.join(cur_dir, fw_name, part_name_p + ' [0x%0.6X].bin' % part_start) # Start offset covers any cases with duplicate name entries ("Unknown" etc)
 				
 				with open(mod_f_path, 'w+b') as part_file : part_file.write(reading[part_start:part_end])
 				
@@ -5654,7 +5654,7 @@ def cse_unpack(variant, fpt_part_all, bpdt_part_all, file_end, fpt_start, fpt_ch
 	# Print all Graphics System Controller Option ROM (OROM) entries
 	if len_orom_hdr_all :
 		if len_fpt_part_all or len_bpdt_part_all : print()
-		orom_fname = os.path.join(mea_dir, fw_name, 'OROM-PCIR Images [%d].txt' % (len_orom_hdr_all // 2))
+		orom_fname = os.path.join(cur_dir, fw_name, 'OROM-PCIR Images [%d].txt' % (len_orom_hdr_all // 2))
 		for hdr in orom_hdr_all :
 			print('%s\n' % hdr)
 			with open(orom_fname, 'a', encoding = 'utf-8') as orom_file : orom_file.write('%s\n' % ansi_escape.sub('', str(hdr)))
@@ -5663,7 +5663,7 @@ def cse_unpack(variant, fpt_part_all, bpdt_part_all, file_end, fpt_start, fpt_ch
 	for cpdrange in list(cpd_pat.finditer(reading)) :
 		# Store any Platform Data (PDR) Flash Descriptor Regions with Code Partition Directory ($CPD) structure (not in $FPT or BPDT)
 		if fd_pdr_rgn_exist and reading[cpdrange.start() + 0xC:cpdrange.start() + 0x10] == b'PDRP' :
-			mod_f_path = os.path.join(mea_dir, fw_name, 'PDRP 0000 [0x%0.6X].bin' % cpdrange.start()) # Start offset covers any cases with multiple PDR (not POR, just in case)
+			mod_f_path = os.path.join(cur_dir, fw_name, 'PDRP 0000 [0x%0.6X].bin' % cpdrange.start()) # Start offset covers any cases with multiple PDR (not POR, just in case)
 			with open(mod_f_path, 'w+b') as part_file : part_file.write(reading[cpdrange.start():cpdrange.start() + pdr_fd_size])
 			
 			print(col_y + '\n--> Stored Flash Descriptor Region "PDRP 0000" [0x%0.6X - 0x%0.6X]' % (cpdrange.start(), cpdrange.start() + pdr_fd_size) + col_e)
@@ -5865,7 +5865,7 @@ def ext_anl(buffer, input_type, input_offset, file_end, ftpr_var_ver, single_man
 				# instead of the one from MFS, when possible (i.e. MFS & FTPR) or necessary (i.e. FTPR only, MFS empty).
 				if not param.cse_unpack :
 					try :
-						intel_cfg_folder = os.path.join(mea_dir, 'intl.cfg_placeholder', '') # Not used here, placeholder value for mfs_cfg_anl to work
+						intel_cfg_folder = os.path.join(cur_dir, 'intl.cfg_placeholder', '') # Not used here, placeholder value for mfs_cfg_anl to work
 						pch_init_info = mfs_cfg_anl(6, intel_cfg_data, intel_cfg_folder, intel_cfg_folder, config_rec_size, [], vol_ftbl_id, vol_ftbl_pl) # Parse MFS Configuration Records
 						pch_init_final = pch_init_anl(pch_init_info) # Parse MFS Initialization Tables and store their Platforms/Steppings
 					except :
@@ -6712,8 +6712,8 @@ def mod_anl(cpd_offset, cpd_mod_attr, cpd_ext_attr, fw_name, ext_print, ext_phva
 		ext_inid = cpd_all_attr[0][9] # Partition Instance ID
 		
 		pt.title = col_y + 'Detected %s Module(s) at %s %0.4X [0x%0.6X]' % (len(cpd_all_attr), cpd_pname, ext_inid, cpd_poffset) + col_e
-		folder_name = os.path.join(mea_dir, fw_name, '%s %0.4X [0x%0.6X]' % (cpd_pname, ext_inid, cpd_poffset), '')
-		info_fname = os.path.join(mea_dir, fw_name, '%s %0.4X [0x%0.6X].txt' % (cpd_pname, ext_inid, cpd_poffset))
+		folder_name = os.path.join(cur_dir, fw_name, '%s %0.4X [0x%0.6X]' % (cpd_pname, ext_inid, cpd_poffset), '')
+		info_fname = os.path.join(cur_dir, fw_name, '%s %0.4X [0x%0.6X].txt' % (cpd_pname, ext_inid, cpd_poffset))
 		
 		cpd_hdr_struct, _ = get_cpd(reading, cpd_poffset)
 		cpd_phdr = get_struct(reading, cpd_poffset, cpd_hdr_struct)
@@ -6870,10 +6870,10 @@ def mod_anl(cpd_offset, cpd_mod_attr, cpd_ext_attr, fw_name, ext_print, ext_phva
 					# Store Golden Measurements File (GMF) Blobs from RBEP.man > CSE_Ext_1E & CSE_Ext_1F
 					if gmf_blob_info and (gmf_blob_info[0],gmf_blob_info[1],gmf_blob_info[2]) == (cpd_pname,ext_inid,cpd_poffset) :
 						if gmf_blob_info[3][0] :
-							gmf_cert_path = os.path.join(mea_dir, folder_name, 'GMF_Certificate.crt')
+							gmf_cert_path = os.path.join(cur_dir, folder_name, 'GMF_Certificate.crt')
 							with open(gmf_cert_path, 'wb') as gmf_cert : gmf_cert.write(gmf_blob_info[3][0])
 						if gmf_blob_info[3][1] :
-							gmf_body_path = os.path.join(mea_dir, folder_name, 'GMF_Body.bin')
+							gmf_body_path = os.path.join(cur_dir, folder_name, 'GMF_Body.bin')
 							with open(gmf_body_path, 'wb') as gmf_body : gmf_body.write(gmf_blob_info[3][1])
 				
 				# Metadata
@@ -6920,7 +6920,7 @@ def mod_anl(cpd_offset, cpd_mod_attr, cpd_ext_attr, fw_name, ext_print, ext_phva
 				elif mod_name in ('intl.cfg','fitc.cfg') :
 					mfs_file_no = 6 if mod_name == 'intl.cfg' else 7
 					if param.cse_unpack : print(col_g + '\n    Analyzing MFS Low Level File %d (%s) ...' % (mfs_file_no, mfs_dict[mfs_file_no]) + col_e)
-					rec_folder = os.path.join(mea_dir, folder_name, mfs_dict[mfs_file_no], '')
+					rec_folder = os.path.join(cur_dir, folder_name, mfs_dict[mfs_file_no], '')
 					try :
 						pch_init_info = mfs_cfg_anl(mfs_file_no, mod_data, rec_folder, rec_folder, config_rec_size, [], vol_ftbl_id, vol_ftbl_pl) # Parse MFS Configuration Records
 						# noinspection PyUnusedLocal
@@ -7456,7 +7456,7 @@ def mfs_anl(mfs_folder, mfs_start, mfs_end, variant, vol_ftbl_id, vol_ftbl_pl, m
 			if param.cse_unpack : print(col_g + '\n    Analyzing MFS Low Level File %d (%s) ...' % (entry_file, mfs_dict[entry_file]) + col_e)
 			
 			if entry_file in (6,7) :
-				rec_folder = os.path.join(mea_dir, mfs_folder, '%0.3d %s' % (entry_file, mfs_dict[entry_file]), '')
+				rec_folder = os.path.join(cur_dir, mfs_folder, '%0.3d %s' % (entry_file, mfs_dict[entry_file]), '')
 				root_folder = rec_folder # Store File Root Folder for Local Path printing
 				mfs_parsed_idx.append(entry_file) # Set MFS Backup Low Level File as Parsed
 				
@@ -7466,7 +7466,7 @@ def mfs_anl(mfs_folder, mfs_start, mfs_end, variant, vol_ftbl_id, vol_ftbl_pl, m
 				if entry_file == 6 : intel_cfg_hash_mfs = [get_hash(file_data, 0x20), get_hash(file_data, 0x30)] # Store MFSB Intel Configuration Hashes
 				
 			elif entry_file == 9 and man_pat.search(file_data[:0x20]) :
-				file_9_folder = os.path.join(mea_dir, mfs_folder, '%0.3d %s' % (entry_file, mfs_dict[entry_file]), '')
+				file_9_folder = os.path.join(cur_dir, mfs_folder, '%0.3d %s' % (entry_file, mfs_dict[entry_file]), '')
 				file_9_data_path = os.path.join(file_9_folder, 'FTPR.man') # MFS Manifest Backup Contents Path
 				mfs_write(file_9_folder, file_9_data_path, file_data) # Store MFS Manifest Backup Contents
 				mfs_parsed_idx.append(entry_file) # Set MFS Backup Low Level File as Parsed
@@ -7727,7 +7727,7 @@ def mfs_anl(mfs_folder, mfs_start, mfs_end, variant, vol_ftbl_id, vol_ftbl_pl, m
 		if mfs_file[1] and mfs_file[0] == 0 :
 			if param.cse_unpack : print(col_g + '\n    Analyzing MFS Low Level File %d (%s) ...' % (mfs_file[0], mfs_dict[mfs_file[0]]) + col_e)
 			mfs_parsed_idx.append(mfs_file[0]) # Set MFS Low Level File as Parsed
-			file_folder = os.path.join(mea_dir, mfs_folder, '%0.3d %s' % (mfs_file[0], mfs_dict[mfs_file[0]]), '')
+			file_folder = os.path.join(cur_dir, mfs_folder, '%0.3d %s' % (mfs_file[0], mfs_dict[mfs_file[0]]), '')
 			file_path = os.path.join(file_folder, 'Contents.bin') # MFS Low Level File Path
 			mfs_write(file_folder, file_path, mfs_file[1]) # Store MFS Low Level File
 		
@@ -7737,7 +7737,7 @@ def mfs_anl(mfs_folder, mfs_start, mfs_end, variant, vol_ftbl_id, vol_ftbl_pl, m
 			mfs_file_name = 'Unknown' if mfs_is_afs and mfs_file[0] in (6,7) else mfs_dict[mfs_file[0]]
 			if param.cse_unpack : print(col_g + '\n    Analyzing MFS Low Level File %d (%s) ...' % (mfs_file[0], mfs_file_name) + col_e)
 			mfs_parsed_idx.append(mfs_file[0]) # Set MFS Low Level File as Parsed
-			file_folder = os.path.join(mea_dir, mfs_folder, '%0.3d %s' % (mfs_file[0], mfs_file_name), '')
+			file_folder = os.path.join(cur_dir, mfs_folder, '%0.3d %s' % (mfs_file[0], mfs_file_name), '')
 			file_data = mfs_file[1][:-sec_hdr_size] # MFS Low Level File Contents without Integrity
 			file_sec = mfs_file[1][-sec_hdr_size:] # MFS Low Level File Integrity without Contents
 			file_sec_hdr = get_struct(file_sec, 0, sec_hdr_struct[sec_hdr_size]) # MFS Low Level File Integrity Structure
@@ -7755,7 +7755,7 @@ def mfs_anl(mfs_folder, mfs_start, mfs_end, variant, vol_ftbl_id, vol_ftbl_pl, m
 		elif mfs_file[1] and mfs_file[0] == 5 :
 			if param.cse_unpack : print(col_g + '\n    Analyzing MFS Low Level File %d (%s) ...' % (mfs_file[0], mfs_dict[mfs_file[0]]) + col_e)
 			mfs_parsed_idx.append(mfs_file[0]) # Set MFS Low Level File 5 as Parsed
-			file_folder = os.path.join(mea_dir, mfs_folder, '%0.3d %s' % (mfs_file[0], mfs_dict[mfs_file[0]]), '')
+			file_folder = os.path.join(cur_dir, mfs_folder, '%0.3d %s' % (mfs_file[0], mfs_dict[mfs_file[0]]), '')
 			file_data_path = os.path.join(file_folder, 'Contents.bin') # MFS Low Level File 5 Contents Path
 			file_sec_path = os.path.join(file_folder, 'Integrity.bin') # MFS Low Level File 5 Integrity Path
 			
@@ -7842,7 +7842,7 @@ def mfs_anl(mfs_folder, mfs_start, mfs_end, variant, vol_ftbl_id, vol_ftbl_pl, m
 						with open(clean_mfs_path, 'rb') as mfs_new : clean_mfs = mfs_new.read()
 						if len(clean_mfs) != mfs_size : input_col(col_r + '\nError: MFS size mismatch!' + col_e)
 						output_data = reading[:mfs_start] + clean_mfs + reading[mfs_end:]
-						output_path = os.path.join(mea_dir, '__RCFG__%s' % os.path.basename(file_in))
+						output_path = os.path.join(cur_dir, '__RCFG__%s' % os.path.basename(file_in))
 						with open(output_path, 'wb') as o : o.write(output_data)
 					
 					shutil.rmtree(temp_dir)
@@ -7855,7 +7855,7 @@ def mfs_anl(mfs_folder, mfs_start, mfs_end, variant, vol_ftbl_id, vol_ftbl_pl, m
 			if param.cse_unpack : print(col_g + '\n    Analyzing MFS Low Level File %d (%s) ...' % (mfs_file[0], mfs_dict[mfs_file[0]]) + col_e)
 			if mfs_file[0] == 6 : intel_cfg_hash_mfs = [get_hash(mfs_file[1], 0x20), get_hash(mfs_file[1], 0x30)] # Store MFS Intel Configuration Hashes
 			mfs_parsed_idx.append(mfs_file[0]) # Set MFS Low Level Files 6,7 as Parsed
-			rec_folder = os.path.join(mea_dir, mfs_folder, '%0.3d %s' % (mfs_file[0], mfs_dict[mfs_file[0]]), '')
+			rec_folder = os.path.join(cur_dir, mfs_folder, '%0.3d %s' % (mfs_file[0], mfs_dict[mfs_file[0]]), '')
 			root_folder = rec_folder # Store File Root Folder for Local Path printing
 			
 			pch_init_info = mfs_cfg_anl(mfs_file[0], mfs_file[1], rec_folder, root_folder, config_rec_size, pch_init_info, vol_ftbl_id, vol_ftbl_pl) # Parse MFS Config Records
@@ -7865,9 +7865,10 @@ def mfs_anl(mfs_folder, mfs_start, mfs_end, variant, vol_ftbl_id, vol_ftbl_pl, m
 		elif mfs_file[1] and mfs_file[0] == 8 :
 			if param.cse_unpack : print(col_g + '\n    Analyzing MFS Low Level File 8 (Home Directory) ...' + col_e)
 			mfs_parsed_idx.append(mfs_file[0]) # Set MFS Low Level File 8 as Parsed
-			root_folder = os.path.join(mea_dir, mfs_folder, '008 Home Directory', 'home', '') # MFS Home Directory Root/Start folder is called "home"
-			init_folder = os.path.join(mea_dir, mfs_folder, '008 Home Directory', '') # MFS Home Directory Parent folder for printing
 			
+			root_folder = os.path.join(cur_dir, mfs_folder, '008 Home Directory', 'home', '') # MFS Home Directory Root/Start folder is called "home"
+			init_folder = os.path.join(cur_dir, mfs_folder, '008 Home Directory', '') # MFS Home Directory Parent folder for printing
+
 			# Detect MFS Home Directory Record Size
 			home_rec_patt = list(re.compile(br'\x2E[\x00\xAA]{10}').finditer(mfs_file[1][:])) # Find the first Current (.) & Parent (..) directory markers
 			if len(home_rec_patt) < 2 : _ = mfs_anl_msg(col_r + 'Error: Detected unknown Home Directory Record Structure!' + col_e, 'error', True, False, False, [])
@@ -7903,7 +7904,7 @@ def mfs_anl(mfs_folder, mfs_start, mfs_end, variant, vol_ftbl_id, vol_ftbl_pl, m
 		elif mfs_file[1] and mfs_file[0] == 9 and man_pat.search(mfs_file[1][:0x20]) :
 			if param.cse_unpack : print(col_g + '\n    Analyzing MFS Low Level File %d (%s) ...' % (mfs_file[0], mfs_dict[mfs_file[0]]) + col_e)
 			mfs_parsed_idx.append(mfs_file[0]) # Set MFS Low Level File 9 as Parsed
-			file_9_folder = os.path.join(mea_dir, mfs_folder, '%0.3d %s' % (mfs_file[0], mfs_dict[mfs_file[0]]), '') # MFS Manifest Backup root folder
+			file_9_folder = os.path.join(cur_dir, mfs_folder, '%0.3d %s' % (mfs_file[0], mfs_dict[mfs_file[0]]), '') # MFS Manifest Backup root folder
 			file_9_data_path = os.path.join(file_9_folder, 'FTPR.man') # MFS Manifest Backup Contents Path
 			mfs_write(file_9_folder, file_9_data_path, mfs_file[1]) # Store MFS Manifest Backup Contents
 			# noinspection PyTypeChecker
@@ -7967,8 +7968,8 @@ def mfs_anl(mfs_folder, mfs_start, mfs_end, variant, vol_ftbl_id, vol_ftbl_pl, m
 		else :
 			mfs_pt = None
 		
-		if vfs_starts_at_0 : mfs_home13_dir = os.path.join(mea_dir, mfs_folder, '')
-		else : mfs_home13_dir = os.path.join(mea_dir, mfs_folder, 'VFS Home Directory', '')
+		if vfs_starts_at_0 : mfs_home13_dir = os.path.join(cur_dir, mfs_folder, '')
+		else : mfs_home13_dir = os.path.join(cur_dir, mfs_folder, 'VFS Home Directory', '')
 		
 		for mfs_file in mfs_files :
 			if mfs_file[1] and mfs_file[0] not in mfs_parsed_idx : # Check if MFS Low Level File has Contents but it has not been Parsed
@@ -8448,7 +8449,7 @@ def fitc_anl(mod_f_path, part_start, part_end, config_rec_size, vol_ftbl_id, vol
 				print(col_r + '\n    Error: Data at FITC padding, possibly unknown Header revision %d!' % fitc_rev + col_e)
 	
 	try :
-		rec_folder = os.path.join(mea_dir, os.path.join(mod_f_path[:-4]), 'OEM Configuration', '')
+		rec_folder = os.path.join(cur_dir, os.path.join(mod_f_path[:-4]), 'OEM Configuration', '')
 		# noinspection PyUnusedLocal
 		_ = mfs_cfg_anl(7, fitc_cfg_data, rec_folder, rec_folder, config_rec_size, [], vol_ftbl_id, vol_ftbl_pl) # Parse MFS Configuration Records
 	except :
@@ -8477,7 +8478,7 @@ def efs_anl(mod_f_path, part_start, part_end, vol_ftbl_id, vol_ftbl_pl) :
 	page_hdr_size = ctypes.sizeof(EFS_Page_Header)
 	page_ftr_size = ctypes.sizeof(EFS_Page_Footer)
 	ftbl_json = os.path.join(mea_dir, 'FileTable.dat')
-	efs_folder = os.path.join(mea_dir, os.path.join(mod_f_path[:-4]), '')
+	efs_folder = os.path.join(cur_dir, os.path.join(mod_f_path[:-4]), '')
 	
 	# Verify that EFS Partition can be parsed by efs_anl
 	if not re.compile(br'\x00.\x00.\x00{3}.{8}\x00\x01\x02\x03\x04\x05', re.DOTALL).search(efs_part[0x1:0x16]) :
@@ -9796,7 +9797,7 @@ def copy_on_msg(msg_all) :
 	# At least one message needs a file copy
 	if copy :
 		file_name = os.path.basename(file_in)
-		check_dir = os.path.join(mea_dir, '__CHECK__', '')
+		check_dir = os.path.join(cur_dir, '__CHECK__', '')
 		check_name = os.path.join(check_dir, file_name)
 		
 		if not os.path.isdir(check_dir) : os.mkdir(check_dir)
@@ -10830,6 +10831,9 @@ known_dup_name_hahes = [
 
 # Get MEA Parameters from input
 param = MEA_Param(sys.argv)
+
+# curdir
+cur_dir = os.path.realpath(os.path.curdir)
 
 # Get script location
 mea_dir = get_script_dir()
@@ -12970,7 +12974,7 @@ for file_in in source :
 		= get_mfs_anl(mfs_state,mfs_parsed_idx,intel_cfg_hash_mfs,mfs_info,pch_init_final)
 		
 		# Get CSE EFS File System Attributes & Configuration State (must be after mfs_anl)
-		if efs_found : efs_init = efs_anl(mea_dir, efs_start, efs_start + efs_size, vol_ftbl_id, vol_ftbl_pl)
+		if efs_found : efs_init = efs_anl(cur_dir, efs_start, efs_start + efs_size, vol_ftbl_id, vol_ftbl_pl)
 		
 		# Get CSE Firmware Attributes (must be after mfs_anl)
 		cpd_offset,cpd_mod_attr,cpd_ext_attr,vcn,ext12_info,ext_print,ext_pname,ext50_info,ext_phval,ext_dnx_val,oem_config,oem_signed,cpd_mn2_info, \
@@ -13272,7 +13276,7 @@ for file_in in source :
 		mfs_state,mfs_parsed_idx,intel_cfg_hash_mfs,mfs_info,pch_init_final,vol_ftbl_id,config_rec_size,vol_ftbl_pl = get_mfs_anl(mfs_state,mfs_parsed_idx,intel_cfg_hash_mfs,mfs_info,pch_init_final)
 		
 		# Get CSE EFS File System Attributes & Configuration State (must be after mfs_anl)
-		if efs_found : efs_init = efs_anl(mea_dir, efs_start, efs_start + efs_size, vol_ftbl_id, vol_ftbl_pl)
+		if efs_found : efs_init = efs_anl(cur_dir, efs_start, efs_start + efs_size, vol_ftbl_id, vol_ftbl_pl)
 		
 		# Detect CSE Firmware Attributes (must be after mfs_anl)
 		cpd_offset,cpd_mod_attr,cpd_ext_attr,vcn,ext12_info,ext_print,ext_pname,ext50_info,ext_phval,ext_dnx_val,oem_config,oem_signed,cpd_mn2_info, \
@@ -13357,7 +13361,7 @@ for file_in in source :
 		= get_mfs_anl(mfs_state,mfs_parsed_idx,intel_cfg_hash_mfs,mfs_info,pch_init_final)
 		
 		# Get GSC EFS File System Attributes & Configuration State (must be after mfs_anl)
-		if efs_found : efs_init = efs_anl(mea_dir, efs_start, efs_start + efs_size, vol_ftbl_id, vol_ftbl_pl)
+		if efs_found : efs_init = efs_anl(cur_dir, efs_start, efs_start + efs_size, vol_ftbl_id, vol_ftbl_pl)
 		
 		# Get GSC Firmware Attributes (must be after mfs_anl)
 		cpd_offset,cpd_mod_attr,cpd_ext_attr,vcn,ext12_info,ext_print,ext_pname,ext50_info,ext_phval,ext_dnx_val,oem_config,oem_signed,cpd_mn2_info, \
