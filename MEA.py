@@ -10242,9 +10242,7 @@ def mass_scan(f_path) :
 	for root, _, files in os.walk(f_path):
 		for name in files :
 			mass_files.append(os.path.join(root, name))
-			
-	input('\nFound %s file(s)\n\nPress enter to start' % len(mass_files))
-	
+
 	return mass_files
 
 # Colorama ANSI Color/Font Escape Character Sequences Regex
