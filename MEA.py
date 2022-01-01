@@ -43,6 +43,7 @@ import subprocess
 import urllib.request
 import importlib.util
 import argparse
+from itertools import chain
 
 # Check code dependency installation
 for depend in ['colorama','crccheck','pltable'] :
@@ -10236,15 +10237,6 @@ def mea_upd_check(db_path) :
 	
 	return result
 
-# Scan all files of a given directory
-def mass_scan(f_path) :
-	mass_files = []
-	for root, _, files in os.walk(f_path):
-		for name in files :
-			mass_files.append(os.path.join(root, name))
-
-	return mass_files
-
 # Colorama ANSI Color/Font Escape Character Sequences Regex
 ansi_escape = re.compile(r'\x1b[^m]*m')
 
@@ -10799,8 +10791,8 @@ if getattr(sys, 'frozen', False):
 
 argp = argparse.ArgumentParser(sys.argv[0], epilog=epilog, formatter_class=argparse.RawTextHelpFormatter)
 
-argp.add_argument('files',  nargs='*', metavar='FILE',                help='File to scan')
-argp.add_argument('-mass',  action='store_true', dest='mass_scan',    help='Scans all files of a given directory')
+argp.add_argument('files',  nargs='*', metavar='FILE',                help='File (or folder with `-r`) to scan')
+argp.add_argument('-r',     action='store_true', dest='mass_scan',    help='Recursively scan all files of a given directory')
 argp.add_argument('-pdb',   action='store_true', dest='db_print_new', help='Writes unique input file DB name to file')
 argp.add_argument('-dbn',   action='store_true', dest='give_db_name', help='Renames input file based on unique DB name')
 argp.add_argument('-dfpt',  action='store_true', dest='fpt_disp',     help='Shows FPT, BPDT, OROM & CSE/GSC Layout Table info')
@@ -10818,8 +10810,11 @@ param = argp.parse_args()
 
 # Initialize file input
 if param.mass_scan :
-	in_path = input('\nEnter the full folder path : ')
-	files_in = mass_scan(in_path)
+	files_in = [
+        os.path.join(path, file)
+        for path, _, files in chain.from_iterable(os.walk(path) for path in param.files)
+        for file in files
+    ]
 
 else:
 	files_in = param.files
