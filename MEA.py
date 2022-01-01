@@ -10797,14 +10797,17 @@ mea_title = '%s %s' % (title, mea_db_rev)
 if sys_os == 'win32' : ctypes.windll.kernel32.SetConsoleTitleW(mea_title)
 elif sys_os.startswith('linux') or sys_os == 'darwin' : sys.stdout.write('\x1b]2;' + mea_title + '\x07')
 
+mea_hdr(mea_db_rev_p)
+
 # Process MEA Parameters
-argp = argparse.ArgumentParser(sys.argv[0], add_help=False)
 
-argp.usage = 'MEA [FilePath] {Options}\n\n'
-argp._optionals.title = '{Options}'
+epilog = col_g + "Copyright (C) 2014-2021 Plato Mavropoulos" + col_e
+if getattr(sys, 'frozen', False):
+    epilog += col_c + '\nIcon by Those Icons (thoseicons.com, CC BY 3.0)' + col_e
 
-argp.add_argument('files',  nargs='*', metavar='[FilePath]',          help=argparse.SUPPRESS)
-argp.add_argument('-?',     action='store_true', dest='help_scr',     help='Displays help & usage screen')
+argp = argparse.ArgumentParser(sys.argv[0], epilog=epilog, formatter_class=argparse.RawTextHelpFormatter)
+
+argp.add_argument('files',  nargs='*', metavar='FILE',                help='File to scan')
 argp.add_argument('-exit',  action='store_true', dest='skip_pause',   help='Skips Press enter to exit prompt')
 argp.add_argument('-mass',  action='store_true', dest='mass_scan',    help='Scans all files of a given directory')
 argp.add_argument('-pdb',   action='store_true', dest='db_print_new', help='Writes unique input file DB name to file')
@@ -13695,8 +13698,5 @@ for cur_count, file_in in enumerate(files_in, start=1):
 	
 	# Close input and copy it in case of messages
 	copy_on_msg(msg_all)
-	
-	# Show MEA help screen only once
-	if param.help_scr : mea_exit(0)
 
 mea_exit(0)
