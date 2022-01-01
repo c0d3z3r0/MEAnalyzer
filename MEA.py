@@ -15,7 +15,6 @@ import sys
 sys_py = sys.version_info
 if sys_py < (3,7) :
 	sys.stdout.write('%s\n\nError: Python >= 3.7 required, not %d.%d!\n' % (title, sys_py[0], sys_py[1]))
-	if '-exit' not in sys.argv : (raw_input if sys_py[0] <= 2 else input)('\nPress enter to exit') # pylint: disable=E0602
 	sys.exit(1)
 
 # Detect OS platform
@@ -26,7 +25,6 @@ elif sys_os.startswith('linux') or sys_os == 'darwin' or sys_os.find('bsd') != -
     pass
 else :
 	print('%s\n\nError: Unsupported platform "%s"!\n' % (title, sys_os))
-	if '-exit' not in sys.argv : input('Press enter to exit')
 	sys.exit(1)
 
 import os
@@ -50,7 +48,6 @@ import argparse
 for depend in ['colorama','crccheck','pltable'] :
 	if not importlib.util.find_spec(depend) :
 		print('%s\n\nError: Dependency "%s" is missing!\n       Install via "pip3 install %s"\n' % (title, depend, depend))
-		if '-exit' not in sys.argv : input('Press enter to exit')
 		sys.exit(1)
 
 import pltable
@@ -9671,9 +9668,6 @@ def mea_exit(code) :
 		pass
 	
 	colorama.deinit() # Stop Colorama
-	
-	if not param.skip_pause : input('\nPress enter to exit')
-	
 	sys.exit(code)
 	
 # Input Colorama Workaround (Windows, Python 3.5+)
@@ -10808,7 +10802,6 @@ if getattr(sys, 'frozen', False):
 argp = argparse.ArgumentParser(sys.argv[0], epilog=epilog, formatter_class=argparse.RawTextHelpFormatter)
 
 argp.add_argument('files',  nargs='*', metavar='FILE',                help='File to scan')
-argp.add_argument('-exit',  action='store_true', dest='skip_pause',   help='Skips Press enter to exit prompt')
 argp.add_argument('-mass',  action='store_true', dest='mass_scan',    help='Scans all files of a given directory')
 argp.add_argument('-pdb',   action='store_true', dest='db_print_new', help='Writes unique input file DB name to file')
 argp.add_argument('-dbn',   action='store_true', dest='give_db_name', help='Renames input file based on unique DB name')
