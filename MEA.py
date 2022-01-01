@@ -10798,7 +10798,6 @@ if sys_os == 'win32' : ctypes.windll.kernel32.SetConsoleTitleW(mea_title)
 elif sys_os.startswith('linux') or sys_os == 'darwin' : sys.stdout.write('\x1b]2;' + mea_title + '\x07')
 
 # Process MEA Parameters
-arg_num = len(sys.argv)
 argp = argparse.ArgumentParser(sys.argv[0], add_help=False)
 
 argp.usage = 'MEA [FilePath] {Options}\n\n'
@@ -10806,7 +10805,6 @@ argp._optionals.title = '{Options}'
 
 argp.add_argument('files',  nargs='*', metavar='[FilePath]',          help=argparse.SUPPRESS)
 argp.add_argument('-?',     action='store_true', dest='help_scr',     help='Displays help & usage screen')
-argp.add_argument('-skip',  action='store_true', dest='skip_intro',   help='Skips welcome & options screen')
 argp.add_argument('-exit',  action='store_true', dest='skip_pause',   help='Skips Press enter to exit prompt')
 argp.add_argument('-mass',  action='store_true', dest='mass_scan',    help='Scans all files of a given directory')
 argp.add_argument('-pdb',   action='store_true', dest='db_print_new', help='Writes unique input file DB name to file')
@@ -10823,48 +10821,6 @@ argp.add_argument('-chk',   action='store_true', dest='check',        help=argpa
 argp.add_argument('-byp',   action='store_true', dest='bypass',       help=argparse.SUPPRESS)  # Hidden
 
 param = argp.parse_args()
-
-if param.mass_scan or param.db_print_new : param.skip_intro = True
-
-if not param.skip_intro :
-	mea_hdr(mea_db_rev_p)
-
-	print("\nWelcome to Intel Engine & Graphics Firmware Analysis Tool\n")
-    
-	if arg_num == 2 and len(param.files) == 1:
-		print("Press Enter to skip or input -? to list options\n")
-		print("\nFile:       " + col_g + "%s" % os.path.basename(param.files[0]) + col_e)
-	elif arg_num > 2 and len(param.files) > 1:
-		print("Press Enter to skip or input -? to list options\n")
-		print("\nFiles:       " + col_y + "Multiple" + col_e)
-	else :
-		print('Input a file name/path or press Enter to list options\n')
-		print("\nFile:       " + col_m + "None" + col_e)
-
-	input_var = input('\nOption(s):  ')
-	
-	# Anything quoted ("") is taken as one (file paths etc)
-	input_var = re.split(''' (?=(?:[^'"]|'[^']*'|"[^"]*")*$)''', input_var.strip())
-	
-	# Get MEA Parameters based on given Options
-	param = argp.parse_args(input_var)
-    
-	# Re-enumerate parameter input
-	arg_num = len(sys.argv)
-
-	mea_hdr(mea_db_rev_p)
-	
-else :
-	mea_hdr(mea_db_rev_p)
-	
-if (arg_num < 2 and not param.help_scr and not param.mass_scan) or param.help_scr :
-	argp.print_help()
-
-	print(col_g + "\nCopyright (C) 2014-2021 Plato Mavropoulos" + col_e)
-	if getattr(sys, 'frozen', False):
-		print(col_c + '\nIcon by Those Icons (thoseicons.com, CC BY 3.0)' + col_e)
-
-	mea_exit(0)
 
 # Initialize file input
 if param.mass_scan :
